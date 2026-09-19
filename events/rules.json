@@ -1,0 +1,56 @@
+{
+  "rules": [
+    {
+      "name": "high-cpu",
+      "match": { "source_type": "cpu", "min_severity": "warning" },
+      "condition": { "field": "value", "op": ">", "threshold": 90 },
+      "task_template": "Investigate high CPU usage on {entity}. Current: {value}%. Identify the top processes and report whether any action is needed. Do NOT kill any process without reporting.",
+      "max_steps": 5,
+      "cooldown_seconds": 300,
+      "mode": "manual"
+    },
+    {
+      "name": "high-memory",
+      "match": { "source_type": "memory", "min_severity": "warning" },
+      "condition": { "field": "value", "op": ">", "threshold": 90 },
+      "task_template": "Investigate high memory usage on {entity}. Current: {value}%. List the top memory consumers and report.",
+      "max_steps": 5,
+      "cooldown_seconds": 300,
+      "mode": "manual"
+    },
+    {
+      "name": "disk-near-full",
+      "match": { "source_type": "disk", "min_severity": "warning" },
+      "condition": { "field": "value", "op": ">", "threshold": 90 },
+      "task_template": "Disk {entity} is {value}% full. Identify the largest directories/files causing usage and report cleanup options. Do NOT delete anything.",
+      "max_steps": 6,
+      "cooldown_seconds": 600,
+      "mode": "manual"
+    },
+    {
+      "name": "ssh-brute-force",
+      "match": { "source_type": "auth_failure", "min_severity": "error" },
+      "task_template": "Multiple authentication failures detected from {entity}: {message}. Check recent login history and report whether this looks like a brute-force attempt. Do NOT block anything.",
+      "max_steps": 5,
+      "cooldown_seconds": 600,
+      "mode": "manual"
+    },
+    {
+      "name": "netapp-volume-capacity",
+      "match": { "source_type": "volume_capacity", "min_severity": "warning" },
+      "condition": { "field": "value", "op": ">", "threshold": 85 },
+      "task_template": "NetApp volume {entity} is at {value}% capacity. List the volume details and qtrees, and report which are the largest consumers.",
+      "max_steps": 6,
+      "cooldown_seconds": 900,
+      "mode": "manual"
+    },
+    {
+      "name": "critical-anything",
+      "match": { "min_severity": "critical" },
+      "task_template": "CRITICAL event from {source} on {entity}: {message}. Investigate immediately and report findings. Take no irreversible action.",
+      "max_steps": 8,
+      "cooldown_seconds": 120,
+      "mode": "manual"
+    }
+  ]
+}

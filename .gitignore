@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+ENV/
+env/
+pip-delete-this-directory.txt
+
+# Runtime data
+logs/
+*.db
+.iris/
+
+# Local config (template committed; secrets must never be in config.json)
+config.json
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Offline bundle artifacts (generated, not committed)
+wheels/
+iris_offline_bundle/
+dist/
+
+# Docs byproducts
+docs/assets/*.png.tmp
+
+# pytest cache
+.pytest_cache/
+.coverage
+htmlcov/

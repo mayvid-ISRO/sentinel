@@ -1,0 +1,42 @@
+# IRIS — main server requirements (pinned for offline install)
+# Install on the air-gapped side with:
+#   pip install --no-index --find-links wheels/ -r requirements.txt
+# (wheels/ is produced by scripts/build_offline_bundle.py on the internet side)
+#
+# Versions below match the validated build environment.
+
+# ── Core agent ───────────────────────────────────────────────
+requests==2.32.5              # LLM (Ollama) + node proxies
+
+# ── Backend API ──────────────────────────────────────────────
+fastapi==0.141.1
+uvicorn[standard]==0.52.1
+pydantic==2.12.5
+websockets==16.0
+
+# ── Desktop automation tools ─────────────────────────────────
+PyAutoGUI==0.9.54
+Pillow==12.1.0
+keyboard==0.13.5
+mouse==0.7.1
+opencv-python==4.13.0.90      # vision tools
+pytesseract==0.3.13           # vision OCR (needs Tesseract binary on host)
+
+# ── Remote access & storage ──────────────────────────────────
+paramiko==4.0.0               # ssh tools
+netapp_ontap==9.19.1.0        # NetApp ONTAP REST SDK
+playwright==1.58.0            # browser tools (browsers shipped in offline bundle)
+
+# ── System telemetry (events subsystem) ──────────────────────
+psutil==7.2.1
+
+# ── Docs / utility ───────────────────────────────────────────
+python-docx==1.2.0
+pypdf>=5.0.0                  # PDF handling for knowledge ingestion
+
+# ── Dev / test ───────────────────────────────────────────────
+pytest==9.0.2
+
+# ── RAG (Phase 2) ────────────────────────────────────────────
+faiss-cpu==1.15.1              # local vector index (no CUDA needed)
+sentence-transformers==6.0.1   # local embeddings (model weights cached after first download)

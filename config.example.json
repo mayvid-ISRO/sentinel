@@ -1,0 +1,89 @@
+{
+  "llm": {
+    "url": "http://127.0.0.1:11434/api/generate",
+    "model": "gpt-oss:20b",
+    "timeout_seconds": 180,
+    "max_retries": 2,
+    "retry_backoff_seconds": 2.0
+  },
+  "agent": {
+    "max_steps": 10,
+    "error_budget": 3,
+    "step_delay_seconds": 0.5
+  },
+  "backend": {
+    "host": "127.0.0.1",
+    "port": 8000,
+    "cors_origins": [
+      "http://localhost:3000",
+      "http://127.0.0.1:3000"
+    ]
+  },
+  "security": {
+    "redact_patterns": [
+      "(password|passwd|api_pass|secret|token)\\s*[:=]\\s*(\\S+)"
+    ],
+    "redact_placeholder": "\u00abREDACTED\u00bb"
+  },
+  "nodes": [
+    {
+      "name": "workstation-01",
+      "host": "192.168.1.50",
+      "port": 9000,
+      "token_env": "IRIS_NODE_TOKEN_W01"
+    }
+  ],
+  "auth": {
+    "enabled": false,
+    "secret": "",
+    "token_expire_minutes": 480
+  },
+  "rbac": {
+    "tool_risk_overrides": {}
+  },
+  "rag": {
+    "enabled": false,
+    "model_name": "all-MiniLM-L6-v2",
+    "max_chunks_per_doc": 200,
+    "chunk_size": 300,
+    "chunk_overlap": 50,
+    "top_k": 3,
+    "threshold": 0.35,
+    "store_path": ".iris/knowledge.faiss",
+    "embed_path": ".iris/knowledge_chunks.json"
+  },
+  "events": {
+    "enabled": true,
+    "mode": "shadow",
+    "bus_buffer": 1000,
+    "syslog": {
+      "enabled": true,
+      "listen": "0.0.0.0",
+      "port": 5514
+    },
+    "metrics": {
+      "enabled": true,
+      "interval_seconds": 30,
+      "cpu_threshold": 90.0,
+      "memory_threshold": 90.0,
+      "disk_threshold": 90.0
+    },
+    "watcher": {
+      "enabled": false,
+      "paths": []
+    },
+    "scheduler": {
+      "enabled": false,
+      "tasks": []
+    },
+    "rules_file": "events/rules.json",
+    "anomaly": {
+      "enabled": false,
+      "window_size": 100,
+      "z_threshold": 2.5,
+      "min_samples": 10,
+      "cooldown_seconds": 300,
+      "store_path": ".iris/baselines.json"
+    }
+  }
+}

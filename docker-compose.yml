@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  iris:
+    build: .
+    ports:
+      - "${IRIS_PORT:-8000}:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      # Override LLM URL if using external provider
+      # - IRIS_LLM_URL=https://router.bynara.id/v1/chat/completions
+      # - IRIS_LLM_MODEL=agnes-2.5-flash
+      # - IRIS_LLM_API_KEY=sk-...
+    volumes:
+      # Persist tasks DB and configs across restarts
+      - iris_data:/app/.iris
+      - iris_logs:/app/backend/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  iris_data:
+  iris_logs:
