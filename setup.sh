@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ── IRIS ── One-command setup + launch ──────────────────────────────────────
+# ── Sentinel ── One-command setup + launch ──────────────────────────────────────
 # Works on Linux, macOS, and WSL/Git-Bash on Windows.
 # Requires: Python 3.12+
 #

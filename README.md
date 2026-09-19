@@ -1,92 +1,185 @@
-# IRIS
+# Sentinel — Agentic IT Infrastructure Management
 
+An agentic, event-driven system for managing air-gapped IT infrastructure.  
+Built for ISRO environments where internet access is unavailable.
 
+**One command to run:** `./setup.sh start` (Linux/macOS/WSL) or `setup.bat start` (Windows)
 
-## Getting started
+---
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Quick Start
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+```bash
+# Clone
+git clone https://github.com/mayvid-ISRO/sentinel.git
+cd sentinel
 
-## Add your files
+# One-command setup + launch (auto-installs everything)
+./setup.sh start          # Linux / macOS / WSL
+setup.bat start           # Windows (double-click or CMD)
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+# Open in browser
+open http://localhost:8000
+```
+
+That's it. The server starts on port 8000 with the web UI, agent engine, and event subsystem all running.
+
+---
+
+## What Sentinel Does
+
+| Capability | Description |
+|---|---|
+| **Agentic Task Execution** | LLM-planned multi-step automation via a tool registry (40+ tools) |
+| **Air-Gapped by Design** | Works fully offline — no internet, no external APIs required at runtime |
+| **RBAC & Approval Gates** | Destructive tools require human sign-off before execution |
+| **Live Streaming UI** | WebSocket-powered real-time step-by-step progress in the browser |
+| **Event-Driven Subsystem** | Syslog ingester + metric watcher + anomaly detector + rule engine |
+| **Local RAG Knowledge Base** | Ingest documents, embed locally with FAISS, retrieve context for agents |
+| **Fleet Management** | Remote node control via SSH with security policies |
+| **Offline Bundle** | `scripts/build_offline_bundle.py` produces a self-contained distributable |
+
+---
+
+## Prerequisites
+
+- **Python 3.12+** (3.13 recommended)
+- A local LLM endpoint — Ollama is the default (`http://127.0.0.1:11434`)
+
+No other dependencies are needed before running `setup.sh`.
+
+---
+
+## Configuration
+
+```bash
+cp config.example.json config.json
+# Edit config.json — set llm.url to your Ollama (or any OpenAI-compatible) endpoint
+```
+
+Secrets go in environment variables or `tools/credentials.py` — **never** in `config.json`.
+
+---
+
+## Project Structure
 
 ```
-cd existing_repo
-git remote add origin https://git.sac.gov.in/divyam/iris.git
-git branch -M main
-git push -uf origin main
+sentinel/
+├── agent/              # Agent loop, LLM wrapper, prompts, redaction
+│   ├── agent.py        # Main run_agent() entry point
+│   ├── dispatcher.py   # Tool dispatch with RBAC gate
+│   ├── llm.py          # LLM API client (Ollama / OpenAI-compatible)
+│   └── prompt.py       # System / task prompts
+├── backend/
+│   └── main.py         # FastAPI app: REST API + WebSocket + static UI
+├── tools/              # Tool registry
+│   ├── base.py         # Tool base class + run(args) contract
+│   ├── browser/        # Playwright browser automation
+│   ├── input/          # Keyboard / mouse simulation (PyAutoGUI)
+│   ├── system/         # OS-level tools (disk, memory, process, package)
+│   ├── vision/         # Screenshots, OCR (Tesseract)
+│   ├── netapp/         # NetApp ONTAP storage management
+│   ├── web/            # HTTP/API tools
+│   └── credentials.py  # Secure credential store
+├── events/             # Event subsystem
+│   ├── adapters/       # Syslog UDP, metrics polling
+│   ├── rules.json      # Alert rules (fire-and-forget or trigger tasks)
+│   └── engine.py       # Rule evaluation engine
+├── auth/               # RBAC, approvals, middleware
+├── anomalies/          # Statistical anomaly detection (z-score baselines)
+├── fleet/              # Remote node management
+├── rag/                # Local RAG (FAISS + sentence-transformers)
+├── frontend/
+│   └── index.html      # Single-file Vue-free SPA (no build step)
+├── scripts/
+│   └── build_offline_bundle.py  # Produces self-contained deployable zip
+├── tests/              # 174 pytest tests, 0 network/LLM dependencies
+├── setup.sh            # Cross-platform setup (Linux/macOS/WSL)
+├── setup.bat           # Windows setup launcher
+└── requirements.txt    # All pinned dependencies
 ```
 
-## Integrate with your tools
+---
 
-- [ ] [Set up project integrations](https://git.sac.gov.in/divyam/iris/-/settings/integrations)
+## Available Commands
 
-## Collaborate with your team
+```bash
+# Setup (creates venv, installs deps, copies config template)
+./setup.sh
+setup.bat
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+# Start the server (default: localhost:8000)
+./setup.sh start
+setup.bat start
 
-## Test and Deploy
+# Run tests
+./setup.sh test
+setup.bat test
 
-Use the built-in continuous integration in GitLab.
+# CLI agent mode (no UI)
+python main.py "open notepad and type hello"
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+# Docker
+docker compose up --build
+```
 
-***
+---
 
-# Editing this README
+## Docker
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+```bash
+docker compose up --build
+# → http://localhost:8000
+```
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+The Dockerfile uses a multi-stage build so the final image is small and contains no build tools.
 
-## Name
-Choose a self-explaining name for your project.
+---
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## Air-Gapped Deployment
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+For completely offline environments, generate a self-contained bundle from an internet-connected machine:
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+```bash
+python scripts/build_offline_bundle.py --out dist/sentinel-offline.zip
+```
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+This produces a ZIP containing:
+- Full Python source tree
+- All wheel files (no pip download needed)
+- Pre-installed virtualenv
+- MANIFEST.json with SHA-256 verification hashes
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Transfer via USB and run `setup.bat` / `setup.sh` inside the extracted directory. No internet required.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+---
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## Testing
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+```bash
+python -m pytest tests/ -q
+# 174 passed — all tests are offline and deterministic
+```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+---
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+## Architecture
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+See [PROJECT_ARCHITECTURE.md](PROJECT_ARCHITECTURE.md) for the full design document, or per-feature docs in [docs/](docs/):
+
+| Doc | Topic |
+|-----|-------|
+| [docs/AGENT_LOOP.md](docs/AGENT_LOOP.md) | Two-phase plan → act loop |
+| [docs/AIRGAP.md](docs/AIRGAP.md) | Air-gap strategy & offline bundle |
+| [docs/ANOMALIES.md](docs/ANOMALIES.md) | Z-score anomaly detection |
+| [docs/EVENTS.md](docs/EVENTS.md) | Event subsystem architecture |
+| [docs/RAG.md](docs/RAG.md) | Local knowledge retrieval |
+| [docs/RBAC.md](docs/RBAC.md) | Role-based access control |
+| [docs/SAFETY.md](docs/SAFETY.md) | Safety policies & redaction |
+| [docs/TESTING.md](docs/TESTING.md) | Test suite guide |
+
+---
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+MIT — see [LICENSE](LICENSE) for details.
