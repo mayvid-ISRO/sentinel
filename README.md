@@ -7,6 +7,14 @@ Built for ISRO environments where internet access is unavailable.
 
 ---
 
+### About the Author
+
+> **Divyam** is an engineer building autonomous systems for critical infrastructure. This project was developed to give operators in air-gapped environments the same reasoning power that cloud-connected teams take for granted — with safety gates that no automated system should ever bypass without human eyes.
+
+[View my GitHub →](https://github.com/mayvid-ISRO)
+
+---
+
 ## Quick Start
 
 ```bash
